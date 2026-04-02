@@ -1,3 +1,16 @@
+import { Layout } from "antd";
+import AppSider from "./components/layout/AppSider";
+import AppHeader from "./components/layout/AppHeader";
+import AppContent from "./components/layout/AppContent";
+
 export default function App() {
-  return <h1>React Crypto App</h1>
+  return (
+    <Layout>
+      <AppHeader />
+      <Layout>
+        <AppSider />
+        <AppContent />
+      </Layout>
+    </Layout>
+  );
 }
