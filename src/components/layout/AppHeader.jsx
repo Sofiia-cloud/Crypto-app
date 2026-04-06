@@ -1,5 +1,8 @@
-import { Layout, Select, Space, Button } from "antd";
+import { Layout, Select, Space, Button, Modal, Drawer } from "antd";
 import { useCrypto } from "../../context/crypto-context";
+import { useEffect, useState } from "react";
+import CoinInfoModal from "../CoinInfoModal";
+import AddAssetForm from "../AddAssetForm";
 const headerStyle = {
   textAlign: "center",
   height: 60,
@@ -12,14 +15,33 @@ const headerStyle = {
 
 export default function AppHeader() {
   const { crypto } = useCrypto();
+  const [coin, setCoin] = useState(null);
+  const [drawer, setDrawer] = useState(false);
+  const [select, setSelect] = useState(false);
+  const [modal, setModal] = useState(false);
+  useEffect(() => {
+    const keypress = (event) => {
+      if (event.key === "/") {
+        setSelect((prev) => !prev);
+      }
+    };
+    document.addEventListener("keypress", keypress);
+    return () => document.removeEventListener("keypress", keypress);
+  }, []);
+
   function handleSelect(value) {
     console.log(value);
+    setCoin(crypto.find((c) => c.id === value));
+    setSelect((prev) => !prev);
+    setModal(true);
   }
   return (
     <Layout.Header style={headerStyle}>
       <Select
         style={{ width: 250 }}
+        open={select}
         onSelect={handleSelect}
+        onClick={() => setSelect((prev) => !prev)}
         value="Press / to open"
         options={crypto.map((coin) => ({
           label: coin.name,
@@ -37,7 +59,21 @@ export default function AppHeader() {
           </Space>
         )}
       />
-      <Button type="primary">Add Asset</Button>
+      <Button type="primary" onClick={() => setDrawer(true)}>
+        Add Asset
+      </Button>
+      <Modal open={modal} onCancel={() => setModal(false)} footer={null}>
+        <CoinInfoModal coin={coin} />
+      </Modal>
+      <Drawer
+        size={600}
+        title="Add Asset"
+        closable={{ "aria-label": "Close Button" }}
+        onClose={() => setDrawer(false)}
+        open={drawer}
+      >
+        <AddAssetForm />
+      </Drawer>
     </Layout.Header>
   );
 }
