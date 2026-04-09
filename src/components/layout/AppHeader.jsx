@@ -16,7 +16,7 @@ const headerStyle = {
 export default function AppHeader() {
   const { crypto } = useCrypto();
   const [coin, setCoin] = useState(null);
-  const [drawer, setDrawer] = useState(false);
+  const [drawer, setDrawer] = useState(true);
   const [select, setSelect] = useState(false);
   const [modal, setModal] = useState(false);
   useEffect(() => {
@@ -71,6 +71,7 @@ export default function AppHeader() {
         closable={{ "aria-label": "Close Button" }}
         onClose={() => setDrawer(false)}
         open={drawer}
+        destroyOnHidden
       >
         <AddAssetForm />
       </Drawer>
