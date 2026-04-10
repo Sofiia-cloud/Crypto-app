@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Select,
   Space,
-  Typography,
-  Flex,
   Divider,
   Form,
   InputNumber,
   Button,
   DatePicker,
+  Result,
 } from "antd";
 import { useCrypto } from "../context/crypto-context";
+import CoinInfo from "./layout/CoinInfo";
 
 const validateMessages = {
   required: "${label} is required!",
@@ -22,11 +22,27 @@ const validateMessages = {
   },
 };
 
-export default function AddAssetForm() {
+export default function AddAssetForm({ onClose }) {
   const [coin, setCoin] = useState(null);
-  const { crypto } = useCrypto();
+  const { crypto, addAsset } = useCrypto();
   const [form] = Form.useForm();
-  //
+  const [submitted, setSubmitted] = useState(false);
+  const assetRef = useRef();
+
+  if (submitted) {
+    return (
+      <Result
+        status="success"
+        title="New Asset Added!"
+        subTitle={`Added ${assetRef.current.amount} of ${coin.name} by price ${assetRef.current.price}`}
+        extra={[
+          <Button type="primary" key="console" onClick={onClose}>
+            Close
+          </Button>,
+        ]}
+      />
+    );
+  }
 
   if (!coin) {
     return (
@@ -54,6 +70,15 @@ export default function AddAssetForm() {
   }
   function onFinish(values) {
     console.log(values);
+    const newAsset = {
+      id: coin.id,
+      amount: values.amount,
+      price: values.price,
+      date: values.date?.$d ?? new Date(),
+    };
+    assetRef.current = newAsset;
+    setSubmitted(true);
+    addAsset(newAsset);
   }
   function handleAmountChange(value) {
     const price = form.getFieldValue("price");
@@ -78,16 +103,7 @@ export default function AddAssetForm() {
       onFinish={onFinish}
       validateMessages={validateMessages}
     >
-      <Flex align="center">
-        <img
-          src={coin.icon}
-          alt={coin.name}
-          style={{ width: 40, marginRight: 10 }}
-        />
-        <Typography.Title level={2} style={{ margin: 0 }}>
-          {coin.name}
-        </Typography.Title>
-      </Flex>
+      <CoinInfo coin={coin} />
       <Divider />
 
       <Form.Item
